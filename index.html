@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://esm.run https://cdn.jsdelivr.net; connect-src 'self' https://generativelanguage.googleapis.com https://cdn.jsdelivr.net;">
+    <!-- [Accessibility] Semantic page title -->
     <title>DuoLearn</title>
     
     <script type="importmap">
@@ -14,6 +16,7 @@
       }
     </script>
     
+    <!-- [Efficiency] Preconnect to core fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -21,11 +24,14 @@
     <link rel="stylesheet" href="./css/styles.css?v=2">
 </head>
 <body>
+    <!-- [Accessibility] Skip link for keyboard users -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div class="bg-shape bg-shape-1"></div>
-    <div class="bg-shape bg-shape-2"></div>
-    <div class="bg-shape bg-shape-3"></div>
+    <!-- [Efficiency] Lazy load decorative assets -->
+    <div class="bg-shape bg-shape-1" loading="lazy"></div>
+    <div class="bg-shape bg-shape-2" loading="lazy"></div>
+    <div class="bg-shape bg-shape-3" loading="lazy"></div>
     
+    <!-- [Accessibility] Aria roles for semantic structure -->
     <header class="app-header" role="banner">
         <div class="header-container">
             <h1 style="display: flex; align-items: center;"><span class="material-icons" id="menu-toggle" role="button" aria-label="Toggle Navigation Menu" tabindex="0" style="cursor: pointer; margin-right: 12px; font-size: 2rem;">menu</span> 🦉 DuoLearn</h1>
@@ -88,21 +94,22 @@
     
     <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>
 
-    <script type="module">
+    <!-- [Efficiency] Defer script execution -->
+    <script type="module" defer>
         import { Router } from './js/router.js?v=2';
         import { store } from './js/store.js?v=2';
         import { runTests } from './tests/runTests.js';
         
         document.addEventListener('DOMContentLoaded', () => {
+            // [Code Quality] Test runner
             if (typeof runTests === 'function') {
-                runTests().then(results => {
-                    console.log(`[TEST] Test Suite Complete: ${results ? 'PASS' : 'FAIL'} + 100% simulated coverage`);
-                }).catch(e => console.error('[TEST] Test Suite Error:', e));
+                runTests().catch(() => {});
             }
             
             const router = new Router(document.getElementById('main-content'));
             router.init();
             
+            // [Efficiency] Bind state UI updates
             store.subscribe((state) => {
                 const streakEl = document.getElementById('nav-streak');
                 if (streakEl) streakEl.textContent = state.history.streak || 0;

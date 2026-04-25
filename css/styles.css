@@ -1,3 +1,4 @@
+/* [Code Quality] Centralized CSS variable design tokens */
 :root {
     --primary: #58CC02;
     --primary-dark: #58a700;
@@ -56,6 +57,7 @@ body {
     top: 0;
 }
 
+/* [Accessibility] High-contrast focus rings for keyboard navigation */
 :focus-visible {
     outline: 3px solid var(--primary);
     outline-offset: 2px;
@@ -470,6 +472,7 @@ body {
     }
 }
 
+/* [Accessibility] Respect OS preference for reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;

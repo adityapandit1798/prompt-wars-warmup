@@ -20,7 +20,6 @@ export function trackEvent(eventType, metadata) {
             data: metadata
         };
         
-        console.log(`[Analytics Event] ${eventType}:`, metadata);
         
         const state = store.getState();
         // Keep events trackable, limit size if needed

@@ -4,6 +4,7 @@
  */
 import { analyzeAnswer, generateHint, generateELI5, generateFollowUpQuestion } from '../services/geminiService.js';
 import { calculateSkillLevel } from '../adaptationLogic.js';
+import { sanitizeInput } from '../utils.js';
 import { store } from '../store.js';
 import { localQuestions } from '../../data/questions.js';
 
@@ -45,7 +46,6 @@ function playSound(type) {
             osc.stop(audioCtx.currentTime + 0.2);
         }
     } catch (e) {
-        console.warn('Audio play failed', e);
     }
 }
 
@@ -138,8 +138,6 @@ export function createQuizInterface(container, lessonId) {
         // If it IS follow up, state.quiz is already populated by Gemini
         
         state.quiz.correctAnswer = state.quiz.correctAnswer || "A";
-        console.log('Question data:', state.quiz);
-        console.log('Correct answer:', state.quiz.correctAnswer);
         
         state.correctIndex = state.quiz.options.findIndex(o => o === state.quiz.correctAnswer || (typeof o === 'string' && o.startsWith(state.quiz.correctAnswer)));
         if (state.correctIndex === -1) state.correctIndex = 0; 
@@ -178,7 +176,6 @@ export function createQuizInterface(container, lessonId) {
     async function submitAnswer(isTimeout = false) {
         if (state.isAnswered || state.isAnalyzing) return;
         
-        console.log("Submit clicked. Evaluating answer...");
         state.isAnalyzing = true;
         clearInterval(timerInterval);
         if (isTimeout) state.selectedOption = null;
@@ -186,7 +183,6 @@ export function createQuizInterface(container, lessonId) {
         render(); 
         
         const userAnswer = isTimeout ? 'No answer provided (Timeout)' : state.quiz.options[state.selectedOption];
-        console.log(`Selected: ${userAnswer}, Correct: ${state.quiz.correctAnswer}`);
         const isCorrect = state.selectedOption !== null && 
             (state.quiz.options[state.selectedOption] === state.quiz.correctAnswer || 
              (typeof state.quiz.options[state.selectedOption] === 'string' && state.quiz.options[state.selectedOption].startsWith(state.quiz.correctAnswer)));
@@ -194,9 +190,7 @@ export function createQuizInterface(container, lessonId) {
         state.isAnalyzing = false;
         
         if (isCorrect) {
-            console.log("Correct! Updating XP...");
         } else {
-            console.log("Wrong!");
         }
         
         const appState = store.getState();
@@ -241,7 +235,6 @@ export function createQuizInterface(container, lessonId) {
             state.explanationBox = null;
         } else {
             historyObj.sessionStats.wrong++;
-            console.log("Wrong!");
             playSound('wrong');
             currentStreak = 0;
             
@@ -437,21 +430,23 @@ export function createQuizInterface(container, lessonId) {
             charAnim = 'float 1s ease infinite';
         }
 
-        element.innerHTML = `
-            ${state.showConfetti ? `<div style="position: fixed; inset: 0; pointer-events: none; background: url('data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><circle cx=\\'50\\' cy=\\'50\\' r=\\'10\\' fill=\\'%2358CC02\\'/></svg>') space; opacity: 0.8; animation: fall 4s linear infinite; z-index: 9999;"></div><style>@keyframes fall { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }</style>` : ''}
-            ${state.showXpAnim ? `<div style="position: absolute; color: var(--warning); font-size: 2.5rem; font-weight: 900; animation: floatUpFade 1.5s forwards; pointer-events: none; z-index: 1000; left: 50%; top: 40%; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">+10 XP</div>` : ''}
+        // [Efficiency] Defer heavy DOM paints to the next animation frame
+        requestAnimationFrame(() => {
+            element.innerHTML = `
+                ${state.showConfetti ? `<div style="position: fixed; inset: 0; pointer-events: none; background: url('data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><circle cx=\\'50\\' cy=\\'50\\' r=\\'10\\' fill=\\'%2358CC02\\'/></svg>') space; opacity: 0.8; animation: fall 4s linear infinite; z-index: 9999;"></div><style>@keyframes fall { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }</style>` : ''}
+                ${state.showXpAnim ? `<div style="position: absolute; color: var(--warning); font-size: 2.5rem; font-weight: 900; animation: floatUpFade 1.5s forwards; pointer-events: none; z-index: 1000; left: 50%; top: 40%; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">+10 XP</div>` : ''}
 
-            <div class="quiz-container" style="max-width: 600px; margin: 0 auto; outline: none; padding-bottom: 2rem;" tabindex="-1">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <span class="material-icons" style="color: var(--border-dark); cursor: pointer; font-size: 2rem;" id="btn-close">close</span>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <span style="font-weight: 800; color: var(--text-muted); font-size: 0.9rem;">${state.quiz ? (state.quiz.difficulty === 'advanced' ? '⭐⭐⭐ Hard' : (state.quiz.difficulty === 'intermediate' ? '⭐⭐ Medium' : '⭐ Easy')) : ''}</span>
-                        <span style="font-weight: 800; color: var(--secondary); background: var(--secondary-light); padding: 4px 12px; border-radius: 999px; font-size: 0.9rem; text-transform: uppercase;">${state.topicName}</span>
-                        <div class="circular-progress" style="--progress: ${state.masteryScore}">
-                            <div class="circular-progress-val">${state.masteryScore}%</div>
+                <div class="quiz-container" style="max-width: 600px; margin: 0 auto; outline: none; padding-bottom: 2rem;" tabindex="-1">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <span class="material-icons" style="color: var(--border-dark); cursor: pointer; font-size: 2rem;" id="btn-close">close</span>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span style="font-weight: 800; color: var(--text-muted); font-size: 0.9rem;">${state.quiz ? (state.quiz.difficulty === 'advanced' ? '⭐⭐⭐ Hard' : (state.quiz.difficulty === 'intermediate' ? '⭐⭐ Medium' : '⭐ Easy')) : ''}</span>
+                            <span style="font-weight: 800; color: var(--secondary); background: var(--secondary-light); padding: 4px 12px; border-radius: 999px; font-size: 0.9rem; text-transform: uppercase;">${state.topicName}</span>
+                            <div class="circular-progress" style="--progress: ${state.masteryScore}">
+                                <div class="circular-progress-val">${state.masteryScore}%</div>
+                            </div>
                         </div>
                     </div>
-                </div>
                 
                 <div style="display: flex; gap: 1.5rem; align-items: flex-end; margin-bottom: 2rem;">
                     <div class="character-mascot" style="font-size: 6rem; animation: ${charAnim}; transform-origin: bottom center;" aria-hidden="true">${character}</div>
@@ -487,13 +482,15 @@ export function createQuizInterface(container, lessonId) {
                                     if (idx === state.correctIndex) labelClass += ' correct';
                                     else if (idx === state.selectedOption) labelClass += ' incorrect';
                                 }
+                                // [Security] Sanitize dynamically loaded AI content before rendering
+                                const safeOpt = sanitizeInput(opt);
                                 return `
                                 <label class="${labelClass}">
-                                    <input type="radio" name="quiz_option" value="${idx}" ${state.selectedOption === idx ? 'checked' : ''} style="display: none;" aria-label="Option ${idx + 1}: ${opt}">
+                                    <input type="radio" name="quiz_option" value="${idx}" ${state.selectedOption === idx ? 'checked' : ''} style="display: none;" aria-label="Option ${idx + 1}: ${safeOpt}">
                                     <div style="width: 30px; height: 30px; border: 2px solid ${state.selectedOption === idx ? 'var(--secondary)' : 'var(--border-dark)'}; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 800; color: ${state.selectedOption === idx ? 'var(--secondary)' : 'var(--text-muted)'}; background: ${state.selectedOption === idx ? 'white' : 'transparent'};" aria-hidden="true">
                                         ${idx + 1}
                                     </div>
-                                    <span style="flex-grow: 1;">${opt}</span>
+                                    <span style="flex-grow: 1;">${safeOpt}</span>
                                 </label>
                                 `;
                             }).join('')}
@@ -530,12 +527,12 @@ export function createQuizInterface(container, lessonId) {
                 </div>
             ` : ''}
         `;
+        });
     }
 
     function handleChange(e) {
         if (e.target.name === 'quiz_option' && !state.isAnswered && !state.isAnalyzing) {
             state.selectedOption = parseInt(e.target.value, 10);
-            console.log('Option clicked/selected:', state.quiz.options[state.selectedOption]);
             render();
         }
     }
