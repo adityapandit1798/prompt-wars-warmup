@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://esm.run https://cdn.jsdelivr.net; connect-src 'self' https://generativelanguage.googleapis.com;">
+    <title>DuoLearn</title>
+    
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <header class="app-header" role="banner">
+        <div class="header-container">
+            <h1>🦉 DuoLearn</h1>
+            <div class="top-stats">
+                <div class="stat-streak" title="Day Streak"><span class="material-icons">local_fire_department</span> <span id="nav-streak">0</span></div>
+                <div class="stat-xp" title="Daily Goal" style="color: var(--secondary); display: flex; align-items: center; gap: 0.25rem;"><span class="material-icons">bolt</span> <span id="nav-xp">0/50</span></div>
+                <div class="stat-hearts" title="Hearts/Lives"><span class="material-icons">favorite</span> <span id="nav-hearts">5</span></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <nav class="app-nav" aria-label="Main Navigation" role="navigation">
+            <ul>
+                <li><a href="#/" class="nav-link"><span class="material-icons" style="vertical-align: middle; margin-right: 8px;">home</span> Home</a></li>
+                <li><a href="#/topics" class="nav-link"><span class="material-icons" style="vertical-align: middle; margin-right: 8px;">menu_book</span> Topics</a></li>
+                <li><a href="#/dashboard" class="nav-link"><span class="material-icons" style="vertical-align: middle; margin-right: 8px;">leaderboard</span> Profile</a></li>
+            </ul>
+        </nav>
+        
+        <main id="main-content" class="app-main" role="main" tabindex="-1">
+            <!-- Router renders components here -->
+        </main>
+    </div>
+
+    <script type="module">
+        import { Router } from './js/router.js';
+        import { store } from './js/store.js';
+        import './tests/runTests.js'; 
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const router = new Router(document.getElementById('main-content'));
+            router.init();
+            
+            store.subscribe((state) => {
+                const streakEl = document.getElementById('nav-streak');
+                if (streakEl) streakEl.textContent = state.history.streak || 0;
+                
+                const heartsEl = document.getElementById('nav-hearts');
+                if (heartsEl) heartsEl.textContent = state.history.hearts ?? 5;
+                
+                const xpEl = document.getElementById('nav-xp');
+                if (xpEl) xpEl.textContent = `${state.history.dailyXp || 0}/${state.history.dailyGoal || 50}`;
+            });
+            
+            // Initial render
+            const state = store.getState();
+            document.getElementById('nav-streak').textContent = state.history.streak || 0;
+            document.getElementById('nav-hearts').textContent = state.history.hearts ?? 5;
+            document.getElementById('nav-xp').textContent = `${state.history.dailyXp || 0}/${state.history.dailyGoal || 50}`;
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,0 @@
-🆘 BUG FIX: "I got this error: {{ERROR}}. Diagnose in 1 sentence, return FULL fixed index.html under 120 lines."
-🆘 VAGUE OUTPUT: "Rewrite with concrete examples, exact file names, and copy-paste runnable steps. Format as a numbered checklist."
-🆘 OUT OF TIME: "I have {{X}} mins left. What's the ABSOLUTE MINIMUM to ship? Return: 1 file to keep, 1 feature to cut, 1 working demo flow."

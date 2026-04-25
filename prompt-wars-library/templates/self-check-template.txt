@@ -1,8 +1,0 @@
-Before returning your final output, verify:
-☐ All HTML tags properly closed & semantic
-☐ JS uses modern syntax (const/let, arrow functions)
-☐ No external CDN links (must work offline)
-☐ UI is responsive & readable on laptop screen
-☐ Demo flow completes in <3 clicks
-☐ Code is under {{X}} lines
-If ANY check fails, fix it before outputting.
