@@ -1,0 +1,15 @@
+GOAL: Build a working MVP for {{APP CONCEPT}}
+
+CONSTRAINTS:
+- Max 1 HTML file (inline CSS + JS)
+- Mock data only, NO backend/APIs
+- 1 complete user flow (view → interact → result)
+- Must run by double-clicking index.html
+
+OUTPUT FORMAT:
+1.  File structure (just index.html)
+2.  Step-by-step user flow (3-4 steps max)
+3.  Core UI components needed
+4.  60-second demo script outline
+
+Keep it brutally simple. Focus on what the judge will SEE in 3 minutes.

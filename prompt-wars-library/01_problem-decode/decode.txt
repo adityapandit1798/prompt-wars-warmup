@@ -1,0 +1,10 @@
+Analyze this hackathon problem and tell me:
+1. What is the REAL user pain point? (1 sentence)
+2. Who is the target user? (be specific, e.g., "commuters with 1-2 hour gaps")
+3. What is the ONE feature that would solve 80% of the problem?
+4. What should I AVOID building? (time-wasters, over-engineering)
+
+Problem statement:
+{{PASTE SECRET PROBLEM HERE}}
+
+Output as a simple bullet list. No jargon. Keep it under 100 words.

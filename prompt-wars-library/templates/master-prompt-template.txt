@@ -1,0 +1,9 @@
+ROLE: Expert rapid-prototyper & product builder
+GOAL: {{What are we building?}}
+SUCCESS CRITERIA:
+- Must: {{critical requirement}}
+- Must NOT: {{what to avoid}}
+CONTEXT: {{Paste problem/user story}}
+OUTPUT FORMAT: {{Specify structure, e.g., JSON, code block, bullet list}}
+CONSTRAINTS: 2-hour build window, single file, mock data, 1 working flow
+SELF-CHECK: Verify output matches format, runs standalone, solves core pain

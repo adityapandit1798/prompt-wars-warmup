@@ -1,0 +1,12 @@
+I have a working index.html. Improve the UI/UX without changing functionality.
+
+CURRENT CODE: {{PASTE YOUR HTML/JS HERE}}
+
+TASK:
+- Add subtle hover effects & smooth transitions
+- Improve spacing, typography, and visual hierarchy
+- Add a loading state or success animation for the main action
+- Keep it under 20 extra lines of CSS/JS
+- Return the FULL updated index.html
+
+Focus on making it look professional and "demo-ready" for judges.

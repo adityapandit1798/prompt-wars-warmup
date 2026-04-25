@@ -1,0 +1,7 @@
+STRICT OUTPUT RULES:
+1. Return ONLY valid code/markup inside ```language ... ```
+2. NO explanations outside the code block unless requested
+3. NO "// TODO" or "add your logic here" placeholders
+4. Include error handling for {{specific case}}
+5. Must be copy-paste runnable in a fresh browser tab
+If uncertain, add a <!-- NOTE: --> comment inside the code explaining the limitation.
