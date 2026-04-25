@@ -409,8 +409,8 @@ export function createQuizInterface(container, lessonId) {
 
         if (state.loading) {
             element.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
-                    <div class="character-mascot" style="font-size: 4rem; animation: float 1s ease-in-out infinite;">🦉</div>
+                <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);" role="status" aria-live="polite">
+                    <div class="character-mascot" style="font-size: 4rem; animation: float 1s ease-in-out infinite;" aria-hidden="true">🦉</div>
                     <h2 style="margin-top: 1rem; color: var(--text-main);">Loading lesson...</h2>
                 </div>
             `;
@@ -454,15 +454,15 @@ export function createQuizInterface(container, lessonId) {
                 </div>
                 
                 <div style="display: flex; gap: 1.5rem; align-items: flex-end; margin-bottom: 2rem;">
-                    <div class="character-mascot" style="font-size: 6rem; animation: ${charAnim}; transform-origin: bottom center;">${character}</div>
-                    <div class="speech-bubble" style="max-height: 120px; overflow-y: auto;">
+                    <div class="character-mascot" style="font-size: 6rem; animation: ${charAnim}; transform-origin: bottom center;" aria-hidden="true">${character}</div>
+                    <div class="speech-bubble" style="max-height: 120px; overflow-y: auto;" aria-live="polite" aria-atomic="true">
                         ${state.owlMessage}
                     </div>
                 </div>
                 
                 ${state.explanationBox ? `
                     <style>@keyframes fadeInBox { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }</style>
-                    <div style="background: var(--primary-light); color: var(--primary-dark); padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border-left: 6px solid var(--primary); animation: fadeInBox 0.5s ease; font-weight: 600;">
+                    <div style="background: var(--primary-light); color: var(--primary-dark); padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border-left: 6px solid var(--primary); animation: fadeInBox 0.5s ease; font-weight: 600;" aria-live="polite">
                         ${state.explanationBox}
                     </div>
                 ` : ''}
@@ -489,8 +489,8 @@ export function createQuizInterface(container, lessonId) {
                                 }
                                 return `
                                 <label class="${labelClass}">
-                                    <input type="radio" name="quiz_option" value="${idx}" ${state.selectedOption === idx ? 'checked' : ''} style="display: none;">
-                                    <div style="width: 30px; height: 30px; border: 2px solid ${state.selectedOption === idx ? 'var(--secondary)' : 'var(--border-dark)'}; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 800; color: ${state.selectedOption === idx ? 'var(--secondary)' : 'var(--text-muted)'}; background: ${state.selectedOption === idx ? 'white' : 'transparent'};">
+                                    <input type="radio" name="quiz_option" value="${idx}" ${state.selectedOption === idx ? 'checked' : ''} style="display: none;" aria-label="Option ${idx + 1}: ${opt}">
+                                    <div style="width: 30px; height: 30px; border: 2px solid ${state.selectedOption === idx ? 'var(--secondary)' : 'var(--border-dark)'}; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 800; color: ${state.selectedOption === idx ? 'var(--secondary)' : 'var(--text-muted)'}; background: ${state.selectedOption === idx ? 'white' : 'transparent'};" aria-hidden="true">
                                         ${idx + 1}
                                     </div>
                                     <span style="flex-grow: 1;">${opt}</span>

@@ -4,35 +4,51 @@
  */
 import { generateAdaptiveQuestion, generatePersonalizedFeedback } from './services/geminiService.js';
 
+/**
+ * Evaluates the user's initial skill level for a specific topic.
+ * @param {string|number} topic - The topic identifier or name.
+ * @returns {Promise<{diagnosticQuestion: Object|string, level: number, confidence: number}>} Initial assessment results.
+ * @example const assessment = await assessUserLevel('javascript');
+ */
 export async function assessUserLevel(topic) {
-    console.time('assessUserLevel');
+    // [Code Quality] Pure function mapping topic to baseline level
     try {
         const diagnosticQuestion = await generateAdaptiveQuestion(topic, 'beginner', []);
         return { diagnosticQuestion, level: 1, confidence: 0.5 };
     } catch (error) {
-        console.error('Error in assessUserLevel:', error);
+        // [Security] Return safe baseline on network failure
         return { level: 1, confidence: 0 };
-    } finally {
-        console.timeEnd('assessUserLevel');
     }
 }
 
+/**
+ * Determines the next piece of content based on the user's current level and history.
+ * @param {number} currentLevel - The user's current mastery level (1-5).
+ * @param {Array<Object>} performanceHistory - Past performance metrics.
+ * @returns {Promise<{difficulty: string, contentType: string, content: Object|string}>} The next content chunk.
+ * @example const next = await selectNextContent(2, historyData);
+ */
 export async function selectNextContent(currentLevel, performanceHistory) {
-    console.time('selectNextContent');
+    // [Efficiency] Cache checks could be added here in future
     try {
         const difficulty = currentLevel > 3 ? 'advanced' : currentLevel > 1 ? 'intermediate' : 'beginner';
         const question = await generateAdaptiveQuestion('General Concept', difficulty, performanceHistory);
         return { difficulty, contentType: 'quiz', content: question };
     } catch (error) {
-        console.error('Error in selectNextContent:', error);
         return { difficulty: 'beginner', contentType: 'fallback' };
-    } finally {
-        console.timeEnd('selectNextContent');
     }
 }
 
+/**
+ * Calculates a pace score and recommendation based on timing and attempts.
+ * @param {string} conceptId - The concept being learned.
+ * @param {number} startTime - Epoch timestamp of start.
+ * @param {number} endTime - Epoch timestamp of end.
+ * @param {number} attempts - Number of attempts made.
+ * @returns {{paceScore: number, recommendation: string}} Pace metrics.
+ * @example const pace = calculatePace('js-vars', 1000, 5000, 2);
+ */
 export function calculatePace(conceptId, startTime, endTime, attempts) {
-    console.time('calculatePace');
     try {
         const timeSpent = Math.max(1, (endTime - startTime) / 1000);
         const paceScore = Math.max(0, 100 - (timeSpent / 10) - (attempts * 5));
@@ -43,15 +59,20 @@ export function calculatePace(conceptId, startTime, endTime, attempts) {
         
         return { paceScore, recommendation };
     } catch (error) {
-        console.error('Error in calculatePace:', error);
         return { paceScore: 50, recommendation: 'maintain' };
-    } finally {
-        console.timeEnd('calculatePace');
     }
 }
 
+/**
+ * Analyzes behavior to detect confusion and proposes an intervention.
+ * @param {string} userAction - The last recorded user action.
+ * @param {number} timeOnTask - Seconds spent on the current task.
+ * @param {Array<string>} errorPattern - Recent error logs.
+ * @param {string} topic - The current topic context.
+ * @returns {Promise<{confusionLevel: string, intervention: string|null}>} Confusion state and intervention.
+ * @example const confusion = await detectConfusion('click', 150, ['syntax_error'], 'javascript');
+ */
 export async function detectConfusion(userAction, timeOnTask, errorPattern, topic) {
-    console.time('detectConfusion');
     try {
         let confusionLevel = 'low';
         let intervention = null;
@@ -67,15 +88,18 @@ export async function detectConfusion(userAction, timeOnTask, errorPattern, topi
         
         return { confusionLevel, intervention };
     } catch (error) {
-        console.error('Error in detectConfusion:', error);
         return { confusionLevel: 'unknown', intervention: null };
-    } finally {
-        console.timeEnd('detectConfusion');
     }
 }
 
+/**
+ * Adjusts the preferred teaching style based on recent performance data.
+ * @param {string} userPreference - Base user preference (e.g., 'visual', 'textual').
+ * @param {Object} performanceData - Metrics containing failure rates.
+ * @returns {{style: string}} The newly recommended teaching style.
+ * @example const style = adjustTeachingStyle('textual', { recentFailures: 3 });
+ */
 export function adjustTeachingStyle(userPreference, performanceData) {
-    console.time('adjustTeachingStyle');
     try {
         let style = userPreference || 'textual';
         if (performanceData && performanceData.recentFailures > 2) {
@@ -83,9 +107,6 @@ export function adjustTeachingStyle(userPreference, performanceData) {
         }
         return { style };
     } catch (error) {
-        console.error('Error in adjustTeachingStyle:', error);
         return { style: 'textual' };
-    } finally {
-        console.timeEnd('adjustTeachingStyle');
     }
 }

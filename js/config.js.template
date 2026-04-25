@@ -1,2 +1,11 @@
 const GEMINI_API_KEY = "${GEMINI_API_KEY}";
-export default { GEMINI_API_KEY };
+export const config = {
+    api: {
+        GEMINI_API_KEY
+    },
+    constants: {
+        storageKey: 'duolearn_state',
+        defaultPace: 'medium'
+    }
+};
+export default config;

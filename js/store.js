@@ -59,10 +59,20 @@ class Store {
         }
     }
 
+    /**
+     * Retrieves a deep copy of the current application state.
+     * @returns {Object} Deep copy of the application state.
+     * @example const currentState = store.getState();
+     */
     getState() {
         return JSON.parse(JSON.stringify(this.state));
     }
 
+    /**
+     * Deep merges the provided state object with the current state and notifies all subscribers.
+     * @param {Object} newState - Partial or full state object to merge into the current state.
+     * @example store.setState({ userProfile: { name: 'Alice' } });
+     */
     setState(newState) {
         const merge = (target, source) => {
             for (const key of Object.keys(source)) {
@@ -81,6 +91,12 @@ class Store {
         this.notify();
     }
 
+    /**
+     * Subscribes a listener function to state changes.
+     * @param {Function} listener - Callback function executed on state updates. Receives the updated state.
+     * @returns {Function} Unsubscribe function to remove the listener.
+     * @example const unsubscribe = store.subscribe(state => console.log(state));
+     */
     subscribe(listener) {
         this.listeners.push(listener);
         return () => {
