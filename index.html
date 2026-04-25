@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://esm.run https://cdn.jsdelivr.net; connect-src 'self' https://generativelanguage.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://esm.run https://cdn.jsdelivr.net; connect-src 'self' https://generativelanguage.googleapis.com https://cdn.jsdelivr.net;">
     <title>DuoLearn</title>
     
     <script type="importmap">
@@ -21,30 +21,71 @@
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="bg-shape bg-shape-3"></div>
+    
     <header class="app-header" role="banner">
         <div class="header-container">
-            <h1>🦉 DuoLearn</h1>
+            <h1 style="display: flex; align-items: center;"><span class="material-icons" id="menu-toggle" style="cursor: pointer; margin-right: 12px; font-size: 2rem;">menu</span> 🦉 DuoLearn</h1>
             <div class="top-stats">
                 <div class="stat-streak" title="Day Streak"><span class="material-icons">local_fire_department</span> <span id="nav-streak">0</span></div>
                 <div class="stat-xp" title="Daily Goal" style="color: var(--secondary); display: flex; align-items: center; gap: 0.25rem;"><span class="material-icons">bolt</span> <span id="nav-xp">0/50</span></div>
-                <div class="stat-hearts" title="Hearts/Lives"><span class="material-icons">favorite</span> <span id="nav-hearts">5</span></div>
+                <div class="stat-hearts" title="Unlimited Hearts Mode"><span class="material-icons">favorite</span> <span id="nav-hearts">&infin;</span></div>
             </div>
         </div>
     </header>
 
     <div class="app-layout">
-        <nav class="app-nav" aria-label="Main Navigation" role="navigation">
+        <nav class="app-nav" id="main-nav" aria-label="Main Navigation" role="navigation">
             <ul>
-                <li><a href="#/" class="nav-link"><span class="material-icons" style="vertical-align: middle; margin-right: 8px;">home</span> Home</a></li>
-                <li><a href="#/topics" class="nav-link"><span class="material-icons" style="vertical-align: middle; margin-right: 8px;">menu_book</span> Topics</a></li>
-                <li><a href="#/dashboard" class="nav-link"><span class="material-icons" style="vertical-align: middle; margin-right: 8px;">leaderboard</span> Profile</a></li>
+                <li><a href="#/" class="nav-link"><span class="material-icons" style="margin-right: 12px;">home</span> <span class="nav-label">Home</span></a></li>
+                <li><a href="#/topics" class="nav-link"><span class="material-icons" style="margin-right: 12px;">menu_book</span> <span class="nav-label">Topics</span></a></li>
+                <li><a href="#/dashboard" class="nav-link"><span class="material-icons" style="margin-right: 12px;">leaderboard</span> <span class="nav-label">Profile</span></a></li>
             </ul>
         </nav>
         
-        <main id="main-content" class="app-main" role="main" tabindex="-1">
+        <main id="main-content" class="app-main" role="main" tabindex="-1" style="animation: fadeIn 0.4s ease-out;">
             <!-- Router renders components here -->
         </main>
+        
+        <aside id="app-sidebar" class="app-sidebar">
+            <div class="sidebar-panel">
+                <h3 style="display: flex; align-items: center; gap: 8px;"><span class="material-icons" style="color: var(--warning);">map</span> Your Learning Path</h3>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem; align-items: center;">
+                    <div style="font-weight: 800; color: var(--text-main);">Current Streak</div>
+                    <div style="color: var(--warning); font-weight: 900; font-size: 1.2rem; display: flex; align-items: center; gap: 4px;">
+                        <span class="material-icons">local_fire_department</span> <span id="sidebar-streak">0</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 0.5rem;">
+                        <span>Total XP</span>
+                        <span style="color: var(--primary);" id="sidebar-xp-text">0</span>
+                    </div>
+                    <div class="card-progress-bar" style="background: var(--border-color);"><div id="sidebar-xp-fill" class="card-progress-fill" style="background: var(--primary); width: 0%;"></div></div>
+                </div>
+            </div>
+            
+            <div class="sidebar-panel">
+                <h3 style="display: flex; align-items: center; gap: 8px;"><span class="material-icons" style="color: var(--secondary);">trending_up</span> Recommended</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; font-weight: 700;">Based on your recent activity, we recommend reviewing these concepts.</p>
+                <button class="btn-duo btn-secondary" style="width: 100%; margin-top: 1rem; padding: 10px; font-size: 0.9rem;" onclick="window.location.hash='/quiz/review'"><span class="material-icons" style="vertical-align: middle; font-size: 1.2rem;">refresh</span> Daily Review</button>
+                <button class="btn-duo btn-secondary" style="width: 100%; margin-top: 0.5rem; padding: 10px; font-size: 0.9rem;" onclick="window.location.hash='/weak-areas'"><span class="material-icons" style="vertical-align: middle; font-size: 1.2rem;">fitness_center</span> Practice Weak Areas</button>
+            </div>
+        </aside>
     </div>
+    
+    <footer class="app-footer">
+        <div>DuoLearn © 2026 | Built with ❤️ and Gemini AI</div>
+        <div class="footer-socials">
+            <span class="material-icons">share</span>
+            <span class="material-icons">help_outline</span>
+            <span class="material-icons">keyboard</span>
+        </div>
+    </footer>
+    
+    <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>
 
     <script type="module">
         import { Router } from './js/router.js';
@@ -58,19 +99,44 @@
             store.subscribe((state) => {
                 const streakEl = document.getElementById('nav-streak');
                 if (streakEl) streakEl.textContent = state.history.streak || 0;
+                const sidebarStreak = document.getElementById('sidebar-streak');
+                if (sidebarStreak) sidebarStreak.textContent = state.history.streak || 0;
                 
                 const heartsEl = document.getElementById('nav-hearts');
-                if (heartsEl) heartsEl.textContent = state.history.hearts ?? 5;
+                if (heartsEl) heartsEl.innerHTML = '&infin;';
                 
                 const xpEl = document.getElementById('nav-xp');
                 if (xpEl) xpEl.textContent = `${state.history.dailyXp || 0}/${state.history.dailyGoal || 50}`;
+                
+                const sidebarXp = document.getElementById('sidebar-xp-text');
+                if (sidebarXp) sidebarXp.textContent = `${state.history.dailyXp || 0} XP`;
+                
+                const sidebarXpFill = document.getElementById('sidebar-xp-fill');
+                if (sidebarXpFill) sidebarXpFill.style.width = `${Math.min(100, ((state.history.dailyXp || 0) / (state.history.dailyGoal || 50)) * 100)}%`;
+            });
+            
+            const menuToggle = document.getElementById('menu-toggle');
+            const appNav = document.getElementById('main-nav');
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                appNav.classList.add('collapsed');
+            }
+            menuToggle.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    appNav.classList.toggle('mobile-open');
+                } else {
+                    appNav.classList.toggle('collapsed');
+                    localStorage.setItem('sidebarCollapsed', appNav.classList.contains('collapsed'));
+                }
             });
             
             // Initial render
             const state = store.getState();
             document.getElementById('nav-streak').textContent = state.history.streak || 0;
-            document.getElementById('nav-hearts').textContent = state.history.hearts ?? 5;
+            document.getElementById('sidebar-streak').textContent = state.history.streak || 0;
+            document.getElementById('nav-hearts').innerHTML = '&infin;';
             document.getElementById('nav-xp').textContent = `${state.history.dailyXp || 0}/${state.history.dailyGoal || 50}`;
+            document.getElementById('sidebar-xp-text').textContent = `${state.history.dailyXp || 0} XP`;
+            document.getElementById('sidebar-xp-fill').style.width = `${Math.min(100, ((state.history.dailyXp || 0) / (state.history.dailyGoal || 50)) * 100)}%`;
         });
     </script>
 </body>

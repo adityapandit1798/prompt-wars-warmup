@@ -33,7 +33,11 @@ const initialState = {
         lastStudied: {},
         hearts: 5,
         dailyXp: 0,
-        dailyGoal: 50
+        dailyGoal: 50,
+        skippedQuestions: [],
+        weakTopics: [],
+        reviewHistory: [],
+        sessionStats: { totalQuestions: 0, correct: 0, wrong: 0, skipped: 0, avgTime: 0 }
     }
 };
 
@@ -48,6 +52,10 @@ class Store {
             if (typeof this.state.history.hearts === 'undefined') this.state.history.hearts = 5;
             if (typeof this.state.history.dailyXp === 'undefined') this.state.history.dailyXp = 0;
             if (typeof this.state.history.dailyGoal === 'undefined') this.state.history.dailyGoal = 50;
+            if (!this.state.history.skippedQuestions) this.state.history.skippedQuestions = [];
+            if (!this.state.history.weakTopics) this.state.history.weakTopics = [];
+            if (!this.state.history.reviewHistory) this.state.history.reviewHistory = [];
+            if (!this.state.history.sessionStats) this.state.history.sessionStats = { totalQuestions: 0, correct: 0, wrong: 0, skipped: 0, avgTime: 0 };
         }
     }
 

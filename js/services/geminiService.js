@@ -5,6 +5,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config.js';
 
+if (typeof window !== 'undefined') {
+    window.monitorAPI = true; // Toggle to false to suppress Gemini call logging
+}
+
 let genAI = null;
 
 function getModel() {
@@ -15,17 +19,19 @@ function getModel() {
         }
         genAI = new GoogleGenerativeAI(config.api.GEMINI_API_KEY);
     }
-    return genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    return genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 }
 
 async function safeGenerateJSON(prompt, fallback) {
     const model = getModel();
     if (!model) return fallback;
     try {
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json" }
+        });
         let text = result.response.text();
         
-        // Try extracting JSON from markdown fences
         const jsonMatch = text.match(/```(?:json)?\n([\s\S]*?)\n```/);
         if (jsonMatch) {
             text = jsonMatch[1];
@@ -37,50 +43,74 @@ async function safeGenerateJSON(prompt, fallback) {
     }
 }
 
-export async function generateAdaptiveQuestion(topic, currentLevel, previousAnswers) {
-    const prompt = `Generate a ${currentLevel} difficulty multiple choice question about "${topic}".
-    The user's recent answers on this topic were: ${JSON.stringify(previousAnswers)}. Avoid repeating questions.
-    Return strictly as a JSON object: {"question": "...", "options": ["...", "...", "...", "..."], "correctAnswer": "...", "explanation": "..."}`;
+export async function generateAdaptiveQuestion(topic, currentLevel, previousWrongAnswers, pacePref = 'medium') {
+    const prompt = `Generate a multiple choice programming concept question about ${topic} (JavaScript/Python/etc) at ${currentLevel} level. Question format: Ask about concepts, syntax, or best practices. The user prefers a ${pacePref} learning pace. They recently struggled with these concepts: ${JSON.stringify(previousWrongAnswers)}. Include 4 options, correct answer (A/B/C/D), and detailed explanation`;
     
-    return safeGenerateJSON(prompt, {
+    let result = await safeGenerateJSON(prompt, {
         question: `[MOCK AI] Which of the following is true about ${topic}?`,
-        options: ['It is synchronous', 'It is asynchronous', 'It is a CSS framework', 'It is a database'],
-        correctAnswer: 'It is asynchronous',
+        options: ['A. It is synchronous', 'B. It is asynchronous', 'C. It is a CSS framework', 'D. It is a database'],
+        correctAnswer: 'B',
         explanation: `Mock reasoning: ${topic} is typically asynchronous.`
     });
+    
+    if (result && result.options) {
+        if (!Array.isArray(result.options) && typeof result.options === 'object') {
+            result.options = Object.entries(result.options).map(([key, val]) => {
+                return typeof val === 'string' && val.startsWith(key) ? val : `${key}. ${val}`;
+            });
+        }
+    }
+    
+    return result;
 }
 
-export async function analyzeAnswer(question, userAnswer, correctAnswer) {
-    const prompt = `Analyze the learner's answer.
-    Question: "${question}"
-    Correct answer: "${correctAnswer}"
-    User chose: "${userAnswer}"
+export async function analyzeAnswer(question, userAnswer, correctAnswer, userName = "Learner") {
+    const prompt = `User answered ${userAnswer}. Correct is ${correctAnswer}. Explain why in 2 sentences for a learner. Include programming-related encouragement like 'Nice coding!', 'You're getting it!', or 'Common mistake!'.
+    Return strictly JSON: {"isCorrect": boolean, "reasoning": "..."}`;
     
-    Determine if it is conceptually correct.
-    Return strictly JSON: {"isCorrect": boolean, "confidence": number (0-1), "reasoning": "Explain why they might have chosen this, and gently correct them if wrong, or praise if correct."}`;
-    
-    const isCorrect = userAnswer === correctAnswer;
+    const isCorrect = typeof userAnswer === 'string' && (userAnswer.startsWith(correctAnswer) || userAnswer === correctAnswer);
     return safeGenerateJSON(prompt, {
         isCorrect: isCorrect,
         confidence: 0.8,
-        reasoning: isCorrect ? `[MOCK AI] Spot on! You understand the concept perfectly.` : `[MOCK AI] Not quite. You chose "${userAnswer}", but the correct answer is "${correctAnswer}".`
+        reasoning: isCorrect ? `[MOCK OWL] Nice coding, ${userName}! Spot on.` : `[MOCK OWL] Common mistake, ${userName}. The correct answer was ${correctAnswer}.`
     });
 }
 
-export function adjustDifficulty(currentLevel, performance) {
-    let newLevel = currentLevel;
-    // performance.recentScore is between 0 and 1
-    if (performance.recentScore > 0.8) {
-        newLevel = Math.min(3, currentLevel + 1); // Max level 3
-    } else if (performance.recentScore < 0.4) {
-        newLevel = Math.max(1, currentLevel - 1); // Min level 1
+export async function generateHint(question, learningStyle, userName) {
+    if (typeof window !== 'undefined' && window.monitorAPI) console.log(" Gemini called for:", "💡 Hint");
+    const prompt = `Give a subtle hint for this question without revealing the answer: ${question}`;
+    
+    return safeGenerateJSON(prompt, { hint: `[MOCK OWL] Psst, look closely at the core concept!` });
+}
+
+export async function generateELI5(concept, userName) {
+    if (typeof window !== 'undefined' && window.monitorAPI) console.log(" Gemini called for:", "📖 Explain");
+    const prompt = `Explain ${concept} in 3 simple bullet points for a beginner`;
+    
+    return safeGenerateJSON(prompt, { explanation: `[MOCK OWL] \n• Point 1\n• Point 2\n• Point 3` });
+}
+
+export async function generateFollowUpQuestion(question, userAnswer, correctAnswer) {
+    if (typeof window !== 'undefined' && window.monitorAPI) console.log(" Gemini called for:", "❌ Wrong Answer Follow-up");
+    const prompt = `User answered wrong. Question: ${question}. Their answer: ${userAnswer}. Correct: ${correctAnswer}. Explain why in 2 simple sentences, then generate a NEW follow-up question to test if they understand now. Return JSON: { "explanation": "...", "followUpQuestion": "...", "followUpOptions": ["A. ...", "B. ...", "C. ...", "D. ..."], "followUpCorrect": "A" }`;
+    
+    let result = await safeGenerateJSON(prompt, {
+        explanation: `[MOCK OWL] The correct answer was ${correctAnswer}. Let's try another one.`,
+        followUpQuestion: `[MOCK AI] Let's try again: What is ${correctAnswer} typically used for?`,
+        followUpOptions: ['A. Data', 'B. Style', 'C. Logic', 'D. Nothing'],
+        followUpCorrect: 'A'
+    });
+    
+    if (result && result.followUpOptions && !Array.isArray(result.followUpOptions) && typeof result.followUpOptions === 'object') {
+        result.followUpOptions = Object.entries(result.followUpOptions).map(([k, v]) => `${k}. ${v}`);
     }
     
-    return {
-        newLevel,
-        shouldIncrease: newLevel > currentLevel,
-        shouldDecrease: newLevel < currentLevel
-    };
+    return result;
+}
+
+export async function generateMascotGreeting(userName, weakAreas) {
+    // API Call disabled per user request to limit Gemini
+    return { message: `Hi ${userName}! Ready to crush some lessons? 🦉` };
 }
 
 export async function generatePersonalizedFeedback(topic, userMistake, learningStyle) {
@@ -90,6 +120,6 @@ export async function generatePersonalizedFeedback(topic, userMistake, learningS
     return safeGenerateJSON(prompt, {
         feedback: `[MOCK AI] It seems you are struggling with ${topic} regarding ${userMistake}.`,
         hint: `Think about how ${topic} applies visually in real life.`,
-        nextStep: 'Let\'s review the foundational concepts again.'
+        nextStep: "Let's review the foundational concepts again."
     });
 }

@@ -12,7 +12,7 @@ function getModel() {
         if (!config.api.GEMINI_API_KEY || config.api.GEMINI_API_KEY === 'YOUR_KEY_HERE') return null;
         genAI = new GoogleGenerativeAI(config.api.GEMINI_API_KEY);
     }
-    return genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    return genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 }
 
 async function safeGenerateJSON(prompt, fallback) {

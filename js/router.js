@@ -7,6 +7,7 @@ import { createTopicSelector } from './components/TopicSelector.js';
 import { createLessonView } from './components/LessonView.js';
 import { createQuizInterface } from './components/QuizInterface.js';
 import { createProgressDashboard } from './components/ProgressDashboard.js';
+import { createWeakAreasView } from './components/WeakAreasView.js';
 
 export class Router {
     constructor(rootElement) {
@@ -30,7 +31,8 @@ export class Router {
             { path: /^\/topics\/?$/, component: createTopicSelector },
             { path: /^\/lesson\/([a-zA-Z0-9_-]+)\/?$/, component: createLessonView },
             { path: /^\/quiz\/([a-zA-Z0-9_-]+)\/?$/, component: createQuizInterface },
-            { path: /^\/dashboard\/?$/, component: createProgressDashboard }
+            { path: /^\/dashboard\/?$/, component: createProgressDashboard },
+            { path: /^\/weak-areas\/?$/, component: createWeakAreasView }
         ];
         
         this.activeComponent = null;
